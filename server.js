@@ -2,7 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
-const MOVIES = require('./movies.js');
+const MOVIES = require('./movies.json');
 require('dotenv').config();
 
 const app = express();
@@ -14,7 +14,7 @@ app.use(cors());
 app.use(function validateBearerToken(req, res, next) {
     const apiToken = process.env.API_TOKEN;
     const authToken = req.get('Authorization');
-    console.log(authToken.split(' ')[1]);
+
     console.log('validating')
 
     if(!authToken || authToken.split(' ')[1] !== apiToken) {
@@ -23,6 +23,34 @@ app.use(function validateBearerToken(req, res, next) {
 
     next();
 });
+
+app.get('/movie', handleGetMovies)
+
+function handleGetMovies(req, res) {
+    let response = MOVIES;
+
+    if(req.query.name) {
+        response = response.filter(movie => 
+            movie.film_title.toLowerCase().includes(req.query.name.toLowerCase()))
+    }
+
+    if(req.query.genre) {
+        response = response.filter(movie => 
+            movie.genre.toLowerCase().includes(req.query.genre.toLowerCase()))
+    }
+
+    if(req.query.country) {
+        response = response.filter(movie => 
+            movie.country.toLowerCase().includes(req.query.country.toLowerCase()))
+    }
+
+    if(req.query.avg_vote) {
+        response = response.filter(movie =>
+            Number(movie.avg_vote) >= Number(req.query.avg))
+    }
+
+    res.json(response);
+}
 
 const PORT = 8000;
 
