@@ -46,7 +46,7 @@ function handleGetMovies(req, res) {
 
     if(req.query.avg_vote) {
         response = response.filter(movie =>
-            Number(movie.avg_vote) >= Number(req.query.avg))
+            parseInt(movie.avg_vote) >= req.query.avg_vote)
     }
 
     res.json(response);
